@@ -17,5 +17,15 @@ abstract class AppRoutes {
   static const String dns = '/dns';
   static const String ports = '/ports';
   static const String technologies = '/technologies';
+  static const String assetMap = '/map';
   static const String security = '/security'; // SecurityArgs
+
+  // Local networks. Arguments: networkId (String) unless noted.
+  static const String networkDetail = '/network';
+  static const String networkScans = '/network/scans';
+  static const String networkScan = '/network/scan'; // scanId
+  static const String networkDevices = '/network/devices';
+  static const String networkDevice = '/network/device'; // deviceId
+  static const String networkChanges = '/network/changes';
+  static const String lanDevice = '/lan/device'; // LanDevice object
 }

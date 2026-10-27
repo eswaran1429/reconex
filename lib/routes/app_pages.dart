@@ -1,4 +1,5 @@
 import 'package:get/get.dart';
+import 'package:reconex/features/asset_map/asset_map_screen.dart';
 import 'package:reconex/features/alerts/alerts_controller.dart';
 import 'package:reconex/features/auth/controllers/login_controller.dart';
 import 'package:reconex/features/auth/controllers/signup_controller.dart';
@@ -12,6 +13,12 @@ import 'package:reconex/features/domain_detail/domain_detail_controller.dart';
 import 'package:reconex/features/domain_detail/domain_detail_screen.dart';
 import 'package:reconex/features/domains/domains_controller.dart';
 import 'package:reconex/features/home/home_screen.dart';
+import 'package:reconex/features/networks/lan_device_detail_screen.dart';
+import 'package:reconex/features/networks/network_changes_screen.dart';
+import 'package:reconex/features/networks/network_detail_screen.dart';
+import 'package:reconex/features/networks/network_devices_screen.dart';
+import 'package:reconex/features/networks/network_scans_screen.dart';
+import 'package:reconex/features/networks/networks_tab.dart';
 import 'package:reconex/features/ports/domain_ports_screen.dart';
 import 'package:reconex/features/scans/scan_detail_controller.dart';
 import 'package:reconex/features/scans/scan_detail_screen.dart';
@@ -61,6 +68,7 @@ class AppPages {
       binding: BindingsBuilder(() {
         Get.lazyPut(() => HomeController());
         Get.lazyPut(() => DomainsController());
+        Get.lazyPut(() => NetworksController());
         Get.lazyPut(() => AlertsController());
       }),
       transition: Transition.fadeIn,
@@ -136,10 +144,66 @@ class AppPages {
       }),
     ),
     GetPage(
+      name: AppRoutes.assetMap,
+      page: () => const AssetMapScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => AssetMapController());
+      }),
+    ),
+    GetPage(
       name: AppRoutes.security,
       page: () => const SecurityScreen(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => SecurityController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.networkDetail,
+      page: () => const NetworkDetailScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworkDetailController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.networkScans,
+      page: () => const NetworkScansScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworkScansController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.networkScan,
+      page: () => const NetworkScanScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworkScanController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.networkDevices,
+      page: () => const NetworkDevicesScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworkDevicesController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.networkDevice,
+      page: () => const NetworkDeviceScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworkDeviceController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.networkChanges,
+      page: () => const NetworkChangesScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworkChangesController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.lanDevice,
+      page: () => const LanDeviceDetailScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => LanDeviceController());
       }),
     ),
   ];

@@ -35,6 +35,10 @@ dependencies:
   flutter_secure_storage: ^11.2.0
   flutter_svg: ^2.3.0
   get: ^4.7.3
+  network_info_plus: ^8.2.2
+  network_tools: ^6.0.10
+  path_provider: ^2.1.6
+  permission_handler: 11.3.1
   pretty_dio_logger: ^1.4.0
 
 dev_dependencies:
@@ -59,6 +63,9 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
+
+  assets:
+    - assets/images/reconex_logo.png
 
   fonts:
     - family: JetBrainsMono

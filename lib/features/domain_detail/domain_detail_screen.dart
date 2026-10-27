@@ -64,6 +64,8 @@ class DomainDetailScreen extends GetView<DomainDetailController> {
                   AppSpacing.lg.height,
                   _StatsGrid(data: data, controller: controller),
                   AppSpacing.lg.height,
+                  _MapCard(onTap: () => controller.open(AppRoutes.assetMap)),
+                  AppSpacing.lg.height,
                   _IssuesCard(data: data, controller: controller),
                   AppSpacing.lg.height,
                   _RecentChangesCard(data: data, controller: controller),
@@ -422,6 +424,53 @@ class _RecentChangesCard extends StatelessWidget {
                   ),
               ],
             ),
+    );
+  }
+}
+
+/// Entry point to the attack surface map.
+class _MapCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _MapCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return SectionCard(
+      onTap: onTap,
+      child: Row(
+        children: [
+          Container(
+            height: 48,
+            width: 48,
+            decoration: const BoxDecoration(gradient: AppColors.gradientButton, borderRadius: AppRadius.rSm),
+            child: const Icon(Icons.hub_rounded, color: AppColors.white),
+          ),
+          AppSpacing.md.width,
+          const Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomText(
+                  text: 'Attack surface map',
+                  fontSize: AppTextTokens.bodySize,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.normalText,
+                  textAlign: TextAlign.left,
+                ),
+                SizedBox(height: 2),
+                CustomText(
+                  text: 'See how hosts, IPs, ports, SSL and technologies connect',
+                  fontSize: 12,
+                  color: AppColors.grey500,
+                  textAlign: TextAlign.left,
+                ),
+              ],
+            ),
+          ),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.grey300),
+        ],
+      ),
     );
   }
 }

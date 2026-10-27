@@ -80,67 +80,73 @@ class AlertCard extends StatelessWidget {
       color: AppColors.white,
       borderRadius: AppRadius.rMd,
       clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        child: IntrinsicHeight(
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(width: 4, color: color),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          StatusBadge.severity(alert.severity),
-                          const Spacer(),
-                          CustomText(text: timeAgo(alert.createdAt), fontSize: 12, color: AppColors.grey400),
-                        ],
-                      ),
-                      AppSpacing.sm.height,
-                      CustomText(
-                        text: alert.title,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.normalText,
-                        textAlign: TextAlign.left,
-                      ),
-                      4.height,
-                      CustomText(
-                        text: alert.message,
-                        fontSize: 13,
-                        color: AppColors.lightText,
-                        textAlign: TextAlign.left,
-                        height: 1.35,
-                      ),
-                      AppSpacing.sm.height,
-                      Row(
-                        children: [
-                          const Icon(Icons.language_rounded, size: 14, color: AppColors.grey400),
-                          4.width,
-                          Expanded(
-                            child: CustomText(
-                              text: alert.domainName,
-                              fontSize: 12,
-                              color: AppColors.grey500,
-                              textAlign: TextAlign.left,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
+      child:
+          // InkWell(
+          // onTap: onTap,
+          // child:
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(width: 4, color: color),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            StatusBadge.severity(alert.severity),
+                            const Spacer(),
+                            CustomText(text: timeAgo(alert.createdAt), fontSize: 12, color: AppColors.grey400),
+                          ],
+                        ),
+                        AppSpacing.sm.height,
+                        CustomText(
+                          text: alert.title,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.normalText,
+                          textAlign: TextAlign.left,
+                        ),
+                        4.height,
+                        CustomText(
+                          text: alert.message,
+                          fontSize: 13,
+                          color: AppColors.lightText,
+                          textAlign: TextAlign.left,
+                          height: 1.35,
+                        ),
+                        AppSpacing.sm.height,
+                        Row(
+                          children: [
+                            Icon(
+                              alert.isNetwork ? Icons.wifi_rounded : Icons.language_rounded,
+                              size: 14,
+                              color: AppColors.grey400,
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
+                            4.width,
+                            Expanded(
+                              child: CustomText(
+                                text: alert.sourceName,
+                                fontSize: 12,
+                                color: AppColors.grey500,
+                                textAlign: TextAlign.left,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+      // ),
     );
   }
 }

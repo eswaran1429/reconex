@@ -1,5 +1,6 @@
 import 'package:reconex/core/network/api_client.dart';
 import 'package:reconex/core/network/paginated.dart';
+import 'package:reconex/data/models/asset_graph.dart';
 import 'package:reconex/data/models/domain.dart';
 
 class DomainService {
@@ -43,6 +44,10 @@ class DomainService {
   /// Ports across all subdomains, each with `hostname` and `ipAddress`. `state` is `open` or `closed`.
   Future<Paginated<Json>> ports(String domainId, {int? page, int? limit, String? state}) =>
       _api.getPage('/domain/ports/$domainId', (j) => j, page: page, limit: limit, query: {'state': state});
+
+  /// Stored data only, no live checks: subdomains with their ports, SSL, technologies and risk findings.
+  Future<AssetGraph> graph(String domainId) async =>
+      AssetGraph.fromJson(await _api.get('/domain/graph/$domainId') as Json);
 
   /// Items: `{ name, category, subdomainCount, subdomains: [{ hostname, version }] }`.
   Future<List<dynamic>> technologies(String domainId) async {

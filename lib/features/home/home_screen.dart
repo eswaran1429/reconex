@@ -5,6 +5,7 @@ import 'package:reconex/core/themes/app_colors.dart';
 import 'package:reconex/features/account/account_tab.dart';
 import 'package:reconex/features/alerts/alerts_tab.dart';
 import 'package:reconex/features/domains/domains_tab.dart';
+import 'package:reconex/features/networks/networks_tab.dart';
 
 class HomeController extends GetxController {
   final RxInt tab = 0.obs;
@@ -18,6 +19,11 @@ class HomeScreen extends GetView<HomeController> {
       icon: Icon(Icons.language_rounded, size: 21, color: AppColors.grey400),
       activeIcon: Icon(Icons.language_rounded, size: 21),
       label: 'Domains',
+    ),
+    NavItem(
+      icon: Icon(Icons.wifi_rounded, size: 21, color: AppColors.grey400),
+      activeIcon: Icon(Icons.wifi_rounded, size: 21),
+      label: 'Networks',
     ),
     NavItem(
       icon: Icon(Icons.notifications_none_rounded, size: 21, color: AppColors.grey400),
@@ -37,7 +43,10 @@ class HomeScreen extends GetView<HomeController> {
       backgroundColor: AppColors.backgroundColor,
       extendBody: true,
       body: Obx(
-        () => IndexedStack(index: controller.tab.value, children: const [DomainsTab(), AlertsTab(), AccountTab()]),
+        () => IndexedStack(
+          index: controller.tab.value,
+          children: const [DomainsTab(), NetworksTab(), AlertsTab(), AccountTab()],
+        ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(

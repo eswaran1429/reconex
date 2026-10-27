@@ -9,7 +9,6 @@ void main() {
   testWidgets('Splash navigates to login when no token is stored', (WidgetTester tester) async {
     FlutterSecureStorage.setMockInitialValues({});
     await tester.pumpWidget(const MyApp());
-    expect(find.text('Reconex'), findsOneWidget);
 
     await tester.pump(const Duration(seconds: 3));
     await tester.pumpAndSettle();

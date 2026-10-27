@@ -1,4 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Reach the backend API, including in release builds. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <!-- Read the current Wi-Fi and discover devices on it. -->
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <!-- Reading the Wi-Fi name (SSID) needs location on Android 10-12. -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <!-- Android 13+: get Wi-Fi info without location. -->
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation"/>
     <application
         android:label="reconex"
         android:name="${applicationName}"

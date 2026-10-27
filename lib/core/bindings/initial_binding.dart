@@ -6,6 +6,8 @@ import 'package:reconex/data/services/alert_service.dart';
 import 'package:reconex/data/services/auth_service.dart';
 import 'package:reconex/data/services/change_service.dart';
 import 'package:reconex/data/services/domain_service.dart';
+import 'package:reconex/data/services/lan_scan_service.dart';
+import 'package:reconex/data/services/network_service.dart';
 import 'package:reconex/data/services/port_service.dart';
 import 'package:reconex/data/services/scan_service.dart';
 import 'package:reconex/data/services/subdomain_service.dart';
@@ -26,6 +28,8 @@ class InitialBinding extends Bindings {
     Get.put(SubdomainService(api), permanent: true);
     Get.put(PortService(api), permanent: true);
     Get.put(TechnologyService(api), permanent: true);
+    Get.put(NetworkService(api), permanent: true);
+    Get.put(LanScanService(), permanent: true);
   }
 
   static Future<void> _onUnauthorized() async {

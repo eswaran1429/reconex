@@ -20,5 +20,11 @@ class AlertsController extends PagedController<AppAlert> {
     reload();
   }
 
-  void openAlert(AppAlert alert) => Get.toNamed(AppRoutes.domainDetail, arguments: alert.domainId);
+  void openAlert(AppAlert alert) {
+    if (alert.networkId != null) {
+      Get.toNamed(AppRoutes.networkDetail, arguments: alert.networkId);
+    } else if (alert.domainId != null) {
+      Get.toNamed(AppRoutes.domainDetail, arguments: alert.domainId);
+    }
+  }
 }

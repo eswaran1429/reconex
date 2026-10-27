@@ -17,6 +17,8 @@ import 'package:reconex/data/services/alert_service.dart';
 import 'package:reconex/data/services/auth_service.dart';
 import 'package:reconex/data/services/change_service.dart';
 import 'package:reconex/data/services/domain_service.dart';
+import 'package:reconex/data/models/lan_device.dart';
+import 'package:reconex/data/services/lan_scan_service.dart';
 import 'package:reconex/data/services/port_service.dart';
 import 'package:reconex/data/services/scan_service.dart';
 import 'package:reconex/data/services/subdomain_service.dart';
@@ -343,6 +345,7 @@ void _registerFakes() {
   Get.put(SubdomainService(api));
   Get.put(PortService(api));
   Get.put(TechnologyService(api));
+  Get.put(LanScanService());
 }
 
 Future<void> _settle(WidgetTester tester) async {
@@ -419,5 +422,25 @@ void main() {
     await visit(AppRoutes.subdomainDetail, 'subdomain_1', '11_subdomain_detail');
     await visit(AppRoutes.dns, 'domain_1', '12_dns');
     await visit(AppRoutes.security, const SecurityArgs(domainId: 'domain_1'), '13_security');
+
+    // Networks tab (no Wi-Fi in a test environment) and a sample device detail.
+    Get.offAllNamed(AppRoutes.home);
+    await _settle(tester);
+    await tester.tap(find.text('Networks').last);
+    await _settle(tester);
+    await _shot(tester, '14_networks_tab');
+
+    Get.toNamed(
+      AppRoutes.lanDevice,
+      arguments: const LanDevice(
+        ip: '192.168.1.1',
+        mac: 'a4:2b:b0:11:22:33',
+        vendor: 'TP-Link',
+        hostname: 'router.lan',
+        isGateway: true,
+      ),
+    );
+    await _settle(tester);
+    await _shot(tester, '15_lan_device');
   });
 }
