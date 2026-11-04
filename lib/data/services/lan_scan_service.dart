@@ -13,6 +13,7 @@ import 'package:reconex/data/models/lan_device.dart';
 class LanScanService {
   final NetworkInfo _info = NetworkInfo();
   bool _configured = false;
+  Future<void>? _configuring;
 
   /// Common ports checked when the user opens a device. Observations, not a verdict.
   static const List<int> _commonPorts = [21, 22, 23, 53, 80, 139, 443, 445, 554, 1883, 3306, 5000, 8080, 8443, 9100];
@@ -20,10 +21,18 @@ class LanScanService {
   /// network_tools needs a writable directory for its MAC-vendor database.
   Future<void> _ensureConfigured() async {
     if (_configured) return;
-    final dir = await getApplicationSupportDirectory();
-    await configureNetworkTools(dir.path, enableDebugging: false);
-    _configured = true;
+    // Single-flight: concurrent callers await the same configure.
+    _configuring ??= () async {
+      final dir = await getApplicationSupportDirectory();
+      await configureNetworkTools(dir.path, enableDebugging: false);
+      _configured = true;
+    }();
+    await _configuring;
   }
+
+  /// Prepares network_tools (copies the MAC-vendor database) ahead of the first
+  /// scan, so that cost isn't paid on the UI thread when the Networks tab opens.
+  Future<void> warmUp() => _ensureConfigured();
 
   /// Asked before reading the Wi-Fi name; the scan itself works without it.
   Future<bool> requestWifiNamePermission() async {
@@ -45,7 +54,8 @@ class LanScanService {
     if (net.subnet == null) return;
     await _ensureConfigured();
 
-    final stream = HostScannerService.instance.getAllPingableDevices(net.subnet!, timeoutInSeconds: 2);
+    // Async variant pings from a background isolate, keeping the UI thread free.
+    final stream = HostScannerService.instance.getAllPingableDevicesAsync(net.subnet!, timeoutInSeconds: 2);
     await for (final host in stream) {
       final ip = host.address;
       yield LanDevice(

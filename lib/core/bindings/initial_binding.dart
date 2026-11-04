@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:get/get.dart';
 import 'package:reconex/core/custom_widgets/custom_snackbar/custom_snackbar.dart';
 import 'package:reconex/core/network/api_client.dart';
@@ -32,7 +34,9 @@ class InitialBinding extends Bindings {
     Get.put(PortService(api), permanent: true);
     Get.put(TechnologyService(api), permanent: true);
     Get.put(NetworkService(api), permanent: true);
-    Get.put(LanScanService(), permanent: true);
+    final lan = Get.put(LanScanService(), permanent: true);
+    // Prepare the scanner during splash so the Networks tab doesn't block the UI.
+    unawaited(lan.warmUp());
     Get.put(RiskService(api), permanent: true);
   }
 
