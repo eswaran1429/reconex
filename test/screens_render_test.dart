@@ -12,13 +12,16 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:reconex/core/network/api_client.dart';
+import 'package:reconex/core/storage/json_cache.dart';
 import 'package:reconex/core/storage/token_storage.dart';
 import 'package:reconex/data/services/alert_service.dart';
 import 'package:reconex/data/services/auth_service.dart';
 import 'package:reconex/data/services/change_service.dart';
 import 'package:reconex/data/services/domain_service.dart';
 import 'package:reconex/data/models/lan_device.dart';
+// import 'package:reconex/features/risk/risk_findings_screen.dart';
 import 'package:reconex/data/services/lan_scan_service.dart';
+import 'package:reconex/data/services/risk_service.dart';
 import 'package:reconex/data/services/port_service.dart';
 import 'package:reconex/data/services/scan_service.dart';
 import 'package:reconex/data/services/subdomain_service.dart';
@@ -85,7 +88,92 @@ final _scan = {
   },
 };
 
+final _risk = {
+  'id': 'risk_12',
+  'domainId': 'domain_1',
+  'category': 'port',
+  'ruleId': 'port.redis.exposed',
+  'title': 'Redis (6379/tcp) exposed on 1.2.3.4',
+  'description': 'Redis is reachable from the internet on 1.2.3.4:6379, used by api.example.com.',
+  'severity': 'critical',
+  'scoreContribution': 40,
+  'affectedAssets': [
+    {'type': 'subdomain', 'id': 'subdomain_2', 'hostname': 'api.example.com', 'ipAddress': '1.2.3.4'},
+  ],
+  'remediation': 'Block port 6379 at the firewall, bind Redis to localhost, and enable authentication.',
+  'status': 'OPEN',
+  'firstSeenAt': _now,
+  'lastSeenAt': _now,
+  'resolvedAt': null,
+};
+
+Map<String, dynamic> _riskScoreData() => {
+  'domain': {'id': 'domain_1', 'name': 'Example', 'url': 'https://example.com'},
+  'id': 'risk_score_4',
+  'domainId': 'domain_1',
+  'scanId': 'scan_7',
+  'score': 46,
+  'level': 'high',
+  'levelLabel': 'High',
+  'previousScore': 38,
+  'delta': 8,
+  'findingCount': 6,
+  'bySeverity': {'critical': 1, 'high': 1, 'medium': 2, 'low': 1, 'info': 1},
+  'byCategory': {'exposed_resource': 0, 'port': 40, 'ssl': 0, 'header': 6, 'technology': 0},
+  'breakdown': [
+    {'category': 'port', 'findings': 2, 'rawPoints': 43, 'points': 40, 'cap': 50},
+    {'category': 'header', 'findings': 3, 'rawPoints': 6, 'points': 6, 'cap': 20},
+  ],
+  'calculatedAt': _now,
+  'topRisks': [
+    _risk,
+    {
+      ..._risk,
+      'id': 'risk_13',
+      'category': 'header',
+      'title': 'Missing HSTS on example.com',
+      'severity': 'medium',
+      'scoreContribution': 4,
+    },
+  ],
+};
+
 Object? _respond(String path) {
+  if (path.endsWith('/risk-score')) return _riskScoreData();
+  if (path.endsWith('/risk-history')) {
+    return _page([
+      for (var i = 0; i < 5; i++)
+        {
+          'id': 'risk_score_$i',
+          'domainId': 'domain_1',
+          'scanId': 'scan_$i',
+          'score': 30 + i * 4,
+          'level': 'high',
+          'levelLabel': 'High',
+          'calculatedAt': _now,
+        },
+    ]);
+  }
+  if (path.contains('/risks')) {
+    return _page([
+      _risk,
+      {..._risk, 'id': 'risk_13', 'severity': 'medium', 'scoreContribution': 4},
+    ]);
+  }
+  if (path.startsWith('/risk/')) {
+    return {
+      ..._risk,
+      'evidence': {
+        'address': '1.2.3.4',
+        'port': 6379,
+        'protocol': 'tcp',
+        'service': 'redis',
+        'state': 'open',
+        'hostnames': ['api.example.com'],
+      },
+      'lastScan': {'id': 'scan_7', 'status': 'COMPLETED'},
+    };
+  }
   if (path == '/domain/get') {
     return [
       {'id': 'domain_1', 'name': 'Example', 'url': 'https://example.com', 'status': 'ACTIVE', 'createdAt': _now},
@@ -335,6 +423,7 @@ Future<void> _loadFonts() async {
 
 void _registerFakes() {
   final storage = Get.put(TokenStorage());
+  Get.put(JsonCache());
   final dio = Dio(BaseOptions(baseUrl: 'http://test'))..httpClientAdapter = _FakeAdapter();
   final api = Get.put(ApiClient(storage, dio: dio));
   Get.put(AuthService(api, storage));
@@ -346,6 +435,7 @@ void _registerFakes() {
   Get.put(PortService(api));
   Get.put(TechnologyService(api));
   Get.put(LanScanService());
+  Get.put(RiskService(api));
 }
 
 Future<void> _settle(WidgetTester tester) async {
@@ -404,10 +494,14 @@ void main() {
       ('Valid SSL certs', '04c_sheet_ssl'),
       ('Alerts (7 days)', '04d_sheet_alerts'),
     ]) {
+      await tester.scrollUntilVisible(find.text(label), 250, scrollable: find.byType(Scrollable).last);
+      await _settle(tester);
       await tester.tap(find.text(label));
       await _settle(tester);
       await _shot(tester, name);
-      Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+      if (find.byType(BottomSheet).evaluate().isNotEmpty) {
+        Navigator.of(tester.element(find.byType(BottomSheet))).pop();
+      }
       await _settle(tester);
     }
     await tester.drag(find.byType(CustomScrollView).last, const Offset(0, -900));
@@ -429,6 +523,10 @@ void main() {
     await tester.tap(find.text('Networks').last);
     await _settle(tester);
     await _shot(tester, '14_networks_tab');
+
+    // Risk feature disabled for now.
+    // await visit(AppRoutes.risks, const RiskFindingsArgs(domainId: 'domain_1'), '16_risk_findings');
+    // await visit(AppRoutes.riskDetail, 'risk_12', '17_risk_detail');
 
     Get.toNamed(
       AppRoutes.lanDevice,

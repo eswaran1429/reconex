@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:reconex/core/custom_widgets/custom_navigation_bar/custom_navigation_bar.dart';
+import 'package:reconex/core/custom_widgets/lazy_indexed_stack/lazy_indexed_stack.dart';
 import 'package:reconex/core/themes/app_colors.dart';
 import 'package:reconex/features/account/account_tab.dart';
 import 'package:reconex/features/alerts/alerts_tab.dart';
@@ -43,9 +44,14 @@ class HomeScreen extends GetView<HomeController> {
       backgroundColor: AppColors.backgroundColor,
       extendBody: true,
       body: Obx(
-        () => IndexedStack(
+        () => LazyIndexedStack(
           index: controller.tab.value,
-          children: const [DomainsTab(), NetworksTab(), AlertsTab(), AccountTab()],
+          builders: [
+            (_) => const DomainsTab(),
+            (_) => const NetworksTab(),
+            (_) => const AlertsTab(),
+            (_) => const AccountTab(),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(

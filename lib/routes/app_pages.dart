@@ -14,6 +14,10 @@ import 'package:reconex/features/domain_detail/domain_detail_screen.dart';
 import 'package:reconex/features/domains/domains_controller.dart';
 import 'package:reconex/features/home/home_screen.dart';
 import 'package:reconex/features/networks/lan_device_detail_screen.dart';
+// Risk feature disabled for now.
+// import 'package:reconex/features/risk/risk_detail_screen.dart';
+// import 'package:reconex/features/risk/risk_findings_screen.dart';
+// import 'package:reconex/features/risk/risk_overview_controller.dart';
 import 'package:reconex/features/networks/network_changes_screen.dart';
 import 'package:reconex/features/networks/network_detail_screen.dart';
 import 'package:reconex/features/networks/network_devices_screen.dart';
@@ -78,6 +82,8 @@ class AppPages {
       page: () => const DomainDetailScreen(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => DomainDetailController());
+        // Risk feature disabled for now.
+        // Get.lazyPut(() => RiskOverviewController());
       }),
     ),
     GetPage(
@@ -206,5 +212,20 @@ class AppPages {
         Get.lazyPut(() => LanDeviceController());
       }),
     ),
+    // Risk feature disabled for now.
+    // GetPage(
+    //   name: AppRoutes.risks,
+    //   page: () => const RiskFindingsScreen(),
+    //   binding: BindingsBuilder(() {
+    //     Get.lazyPut(() => RiskFindingsController());
+    //   }),
+    // ),
+    // GetPage(
+    //   name: AppRoutes.riskDetail,
+    //   page: () => const RiskDetailScreen(),
+    //   binding: BindingsBuilder(() {
+    //     Get.lazyPut(() => RiskDetailController());
+    //   }),
+    // ),
   ];
 }

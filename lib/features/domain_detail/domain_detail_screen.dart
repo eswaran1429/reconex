@@ -16,6 +16,8 @@ import 'package:reconex/core/utils/json_utils.dart';
 import 'package:reconex/data/models/change.dart';
 import 'package:reconex/features/changes/change_tile.dart';
 import 'package:reconex/features/domain_detail/domain_detail_controller.dart';
+// Risk feature disabled for now.
+// import 'package:reconex/features/risk/risk_overview_section.dart';
 import 'package:reconex/features/domain_detail/stat_sheets.dart';
 import 'package:reconex/routes/app_routes.dart';
 
@@ -62,6 +64,9 @@ class DomainDetailScreen extends GetView<DomainDetailController> {
                 children: [
                   _HeaderCard(data: data, controller: controller),
                   AppSpacing.lg.height,
+                  // Risk feature disabled for now.
+                  // const RiskOverviewSection(),
+                  // AppSpacing.lg.height,
                   _StatsGrid(data: data, controller: controller),
                   AppSpacing.lg.height,
                   _MapCard(onTap: () => controller.open(AppRoutes.assetMap)),

@@ -28,4 +28,8 @@ abstract class AppRoutes {
   static const String networkDevice = '/network/device'; // deviceId
   static const String networkChanges = '/network/changes';
   static const String lanDevice = '/lan/device'; // LanDevice object
+
+  // Attack-surface risk scoring.
+  static const String risks = '/risks'; // RiskFindingsArgs
+  static const String riskDetail = '/risk'; // riskId
 }

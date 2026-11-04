@@ -12,13 +12,17 @@ class ApiClient {
     _dio.interceptors.add(InterceptorsWrapper(onRequest: _attachToken, onError: _handleError));
     // Debug builds only, and not for an injected Dio (tests). Headers stay off so the bearer token isn't printed.
     if (kDebugMode && dio == null) {
-      _dio.interceptors.add(PrettyDioLogger(requestBody: true, responseBody: true, error: true));
+      // Bodies off: printing large payloads on the UI isolate janks frames and
+      // floods logcat ("LOGS OVER PROC QUOTA ... DROPPED"). Method + status is enough.
+      _dio.interceptors.add(PrettyDioLogger(responseBody: false, error: true));
     }
   }
 
   static String get baseUrl => 'https://reconex-backend.onrender.com';
 
-  static const Duration _connectTimeout = Duration(seconds: 15);
+  // Render free tier sleeps when idle; the first request cold-starts the
+  // container (~30-50s), so connect must tolerate that wake time.
+  static const Duration _connectTimeout = Duration(seconds: 60);
   static const Duration _receiveTimeout = Duration(seconds: 60);
 
   final Dio _dio;

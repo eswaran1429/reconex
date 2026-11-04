@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:reconex/core/custom_widgets/confirm_dialog/confirm_dialog.dart';
 import 'package:reconex/core/custom_widgets/custom_snackbar/custom_snackbar.dart';
 import 'package:reconex/core/network/api_exception.dart';
+import 'package:reconex/core/storage/json_cache.dart';
 import 'package:reconex/core/network/paginated.dart';
 import 'package:reconex/data/models/domain.dart';
 import 'package:reconex/data/services/domain_service.dart';
@@ -25,16 +26,31 @@ class DomainDetailController extends GetxController {
 
   Domain? get domain => dashboard.value?['domain'] is Map ? Domain.fromJson(dashboard.value!['domain'] as Json) : null;
 
+  final JsonCache _cache = Get.find();
+  String get _cacheKey => 'dashboard_$domainId';
+
   @override
   void onInit() {
     super.onInit();
+    _loadCached();
     load();
+  }
+
+  /// Paint last-seen data instantly, so the network call isn't a blank shimmer.
+  Future<void> _loadCached() async {
+    final cached = await _cache.readMap(_cacheKey);
+    if (cached != null && dashboard.value == null) {
+      dashboard.value = cached;
+      isLoading.value = false;
+    }
   }
 
   Future<void> load() async {
     try {
-      dashboard.value = await _domainService.dashboard(domainId);
+      final data = await _domainService.dashboard(domainId);
+      dashboard.value = data;
       error.value = null;
+      _cache.write(_cacheKey, data);
     } catch (e) {
       if (dashboard.value == null) {
         error.value = e.toString();
