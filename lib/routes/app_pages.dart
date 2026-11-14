@@ -1,6 +1,13 @@
 import 'package:get/get.dart';
 import 'package:reconex/features/asset_map/asset_map_screen.dart';
 import 'package:reconex/features/alerts/alerts_controller.dart';
+import 'package:reconex/features/camera_detector/camera_detector_controller.dart';
+import 'package:reconex/features/camera_detector/camera_detector_screen.dart';
+import 'package:reconex/features/camera_detector/lens_finder/lens_finder_controller.dart';
+import 'package:reconex/features/camera_detector/lens_finder/lens_finder_screen.dart';
+import 'package:reconex/features/camera_detector/magnetometer/magnetometer_controller.dart';
+import 'package:reconex/features/camera_detector/magnetometer/magnetometer_screen.dart';
+import 'package:reconex/features/camera_detector/room_sweep_screen.dart';
 import 'package:reconex/features/auth/controllers/login_controller.dart';
 import 'package:reconex/features/auth/controllers/signup_controller.dart';
 import 'package:reconex/features/auth/screens/login_screen.dart';
@@ -12,7 +19,11 @@ import 'package:reconex/features/dns/dns_screen.dart';
 import 'package:reconex/features/domain_detail/domain_detail_controller.dart';
 import 'package:reconex/features/domain_detail/domain_detail_screen.dart';
 import 'package:reconex/features/domains/domains_controller.dart';
+import 'package:reconex/features/account/account_tab.dart';
+import 'package:reconex/features/alerts/alerts_tab.dart';
+import 'package:reconex/features/domains/domains_tab.dart';
 import 'package:reconex/features/home/home_screen.dart';
+import 'package:reconex/features/home/section_page.dart';
 import 'package:reconex/features/networks/lan_device_detail_screen.dart';
 // Risk feature disabled for now.
 // import 'package:reconex/features/risk/risk_detail_screen.dart';
@@ -70,12 +81,31 @@ class AppPages {
       name: AppRoutes.home,
       page: () => const HomeScreen(),
       binding: BindingsBuilder(() {
+        // Domains and alerts feed the dashboard, so they live with home and are shared with their pages.
         Get.lazyPut(() => HomeController());
         Get.lazyPut(() => DomainsController());
-        Get.lazyPut(() => NetworksController());
         Get.lazyPut(() => AlertsController());
       }),
       transition: Transition.fadeIn,
+    ),
+    GetPage(
+      name: AppRoutes.domains,
+      page: () => const SectionPage(child: DomainsTab()),
+    ),
+    GetPage(
+      name: AppRoutes.networks,
+      page: () => const SectionPage(child: NetworksTab()),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => NetworksController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.alerts,
+      page: () => const SectionPage(child: AlertsTab()),
+    ),
+    GetPage(
+      name: AppRoutes.account,
+      page: () => const SectionPage(child: AccountTab()),
     ),
     GetPage(
       name: AppRoutes.domainDetail,
@@ -203,6 +233,34 @@ class AppPages {
       page: () => const NetworkChangesScreen(),
       binding: BindingsBuilder(() {
         Get.lazyPut(() => NetworkChangesController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.roomSweep,
+      page: () => const RoomSweepScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => RoomSweepController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.lensFinder,
+      page: () => const LensFinderScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => LensFinderController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.magnetometer,
+      page: () => const MagnetometerScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => MagnetometerController());
+      }),
+    ),
+    GetPage(
+      name: AppRoutes.cameraDetector,
+      page: () => const CameraDetectorScreen(),
+      binding: BindingsBuilder(() {
+        Get.lazyPut(() => CameraDetectorController());
       }),
     ),
     GetPage(

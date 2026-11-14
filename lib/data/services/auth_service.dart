@@ -14,7 +14,7 @@ class AuthService {
     return AuthUser.fromJson(data as Json);
   }
 
-  Future<AuthUser> login({required String email, required String password}) async { 
+  Future<AuthUser> login({required String email, required String password}) async {
     final data = await _api.post('/auth/login', data: {'email': email, 'password': password});
     final user = AuthUser.fromJson(data as Json);
     await _tokenStorage.save(user.token);

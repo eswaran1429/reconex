@@ -121,7 +121,8 @@ class DomainDetailController extends GetxController {
     if (!confirmed) return;
     try {
       await _domainService.delete(domainId);
-      Get.until((route) => route.settings.name == AppRoutes.home);
+      // Back to the domains list if it is open, else the dashboard.
+      Get.until((route) => route.settings.name == AppRoutes.domains || route.settings.name == AppRoutes.home);
       AppSnackbar.success('Domain deleted', domain?.name ?? '');
     } catch (e) {
       AppSnackbar.warning('Delete failed', e.toString());

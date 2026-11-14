@@ -38,7 +38,7 @@ class _AccountTabState extends State<AccountTab> {
     return SafeArea(
       bottom: false,
       child: ListView(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, 120),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xxl),
         children: [
           const CustomText(
             text: 'Account',

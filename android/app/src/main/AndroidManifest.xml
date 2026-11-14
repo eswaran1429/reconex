@@ -5,6 +5,13 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_MULTICAST_STATE"/>
+    <!-- Camera scan: list nearby Wi-Fi hotspots (some hidden cameras run their own). -->
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <!-- Lens and IR finder. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>
+    <uses-feature android:name="android.hardware.sensor.compass" android:required="false"/>
     <!-- Reading the Wi-Fi name (SSID) needs location on Android 10-12. -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <!-- Android 13+: get Wi-Fi info without location. -->

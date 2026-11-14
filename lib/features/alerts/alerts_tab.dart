@@ -21,11 +21,11 @@ class AlertsTab extends GetView<AlertsController> {
       bottom: false,
       child: PagedListView<AppAlert>(
         controller: controller,
-        bottomSpace: 120,
+        bottomSpace: AppSpacing.xxl,
         header: [
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.lg),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

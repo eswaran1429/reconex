@@ -5,6 +5,10 @@ abstract class AppRoutes {
   static const String login = '/login';
   static const String signup = '/signup';
   static const String home = '/home';
+  static const String domains = '/domains';
+  static const String networks = '/networks';
+  static const String alerts = '/alerts';
+  static const String account = '/account';
 
   // Arguments: domainId (String) unless noted.
   static const String domainDetail = '/domain';
@@ -28,6 +32,10 @@ abstract class AppRoutes {
   static const String networkDevice = '/network/device'; // deviceId
   static const String networkChanges = '/network/changes';
   static const String lanDevice = '/lan/device'; // LanDevice object
+  static const String roomSweep = '/sweep';
+  static const String cameraDetector = '/sweep/network';
+  static const String lensFinder = '/sweep/lens';
+  static const String magnetometer = '/sweep/magnet';
 
   // Attack-surface risk scoring.
   static const String risks = '/risks'; // RiskFindingsArgs

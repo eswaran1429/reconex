@@ -9,6 +9,7 @@ import 'package:reconex/data/services/alert_service.dart';
 import 'package:reconex/data/services/auth_service.dart';
 import 'package:reconex/data/services/change_service.dart';
 import 'package:reconex/data/services/domain_service.dart';
+import 'package:reconex/data/services/hotspot_scan_service.dart';
 import 'package:reconex/data/services/lan_scan_service.dart';
 import 'package:reconex/data/services/network_service.dart';
 import 'package:reconex/data/services/risk_service.dart';
@@ -37,6 +38,7 @@ class InitialBinding extends Bindings {
     final lan = Get.put(LanScanService(), permanent: true);
     // Prepare the scanner during splash so the Networks tab doesn't block the UI.
     unawaited(lan.warmUp());
+    Get.put(HotspotScanService(), permanent: true);
     Get.put(RiskService(api), permanent: true);
   }
 

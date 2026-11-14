@@ -471,7 +471,8 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await _settle(tester);
     expect(find.text('Example'), findsWidgets);
-    await _shot(tester, '01_domains');
+    expect(find.text('Hidden camera detector'), findsOneWidget);
+    await _shot(tester, '00_dashboard');
 
     Future<void> visit(String route, Object args, String name) async {
       Get.toNamed(route, arguments: args);
@@ -479,13 +480,10 @@ void main() {
       await _shot(tester, name);
     }
 
-    await tester.tap(find.text('Alerts').last);
-    await _settle(tester);
-    await _shot(tester, '02_alerts');
-
-    await tester.tap(find.text('Account').last);
-    await _settle(tester);
-    await _shot(tester, '03_account');
+    await visit(AppRoutes.domains, '', '01_domains');
+    await visit(AppRoutes.alerts, '', '02_alerts');
+    await visit(AppRoutes.account, '', '03_account');
+    await visit(AppRoutes.roomSweep, '', '03a_room_sweep');
 
     await visit(AppRoutes.domainDetail, 'domain_1', '04_domain_detail');
     for (final (label, name) in [
@@ -520,9 +518,7 @@ void main() {
     // Networks tab (no Wi-Fi in a test environment) and a sample device detail.
     Get.offAllNamed(AppRoutes.home);
     await _settle(tester);
-    await tester.tap(find.text('Networks').last);
-    await _settle(tester);
-    await _shot(tester, '14_networks_tab');
+    await visit(AppRoutes.networks, '', '14_networks_tab');
 
     // Risk feature disabled for now.
     // await visit(AppRoutes.risks, const RiskFindingsArgs(domainId: 'domain_1'), '16_risk_findings');

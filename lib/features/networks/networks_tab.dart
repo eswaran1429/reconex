@@ -94,6 +94,8 @@ class NetworksController extends GetxController {
 
   int get onlineCount => devices.length;
 
+  void openCameraScan() => Get.toNamed(AppRoutes.roomSweep);
+
   void openDevice(LanDevice device) => Get.toNamed(AppRoutes.lanDevice, arguments: device);
 }
 
@@ -124,7 +126,7 @@ class NetworksTab extends GetView<NetworksController> {
                 );
               }
               return ListView.separated(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 120),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, AppSpacing.xxl),
                 itemCount: controller.devices.length,
                 separatorBuilder: (_, _) => AppSpacing.md.height,
                 itemBuilder: (_, i) {
@@ -148,7 +150,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.md),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -162,7 +164,7 @@ class _Header extends StatelessWidget {
                     children: [
                       CustomText(
                         text: net?.ssid ?? (net?.onWifi == true ? 'Wi-Fi network' : 'Not connected'),
-                        fontSize: AppTextTokens.displaySize,
+                        fontSize: AppTextTokens.displaySize - 12,
                         fontWeight: FontWeight.bold,
                         color: AppColors.normalText,
                         textAlign: TextAlign.left,
@@ -184,6 +186,23 @@ class _Header extends StatelessWidget {
                   );
                 }),
               ),
+              // Tooltip(
+              //   message: 'Scan for hidden cameras',
+              //   child: GestureDetector(
+              //     onTap: controller.openCameraScan,
+              //     child: Container(
+              //       height: 48,
+              //       width: 48,
+              //       decoration: BoxDecoration(
+              //         color: AppColors.white,
+              //         borderRadius: AppRadius.rSm,
+              //         boxShadow: AppShadows.md,
+              //       ),
+              //       child: const Icon(Icons.videocam_outlined, color: AppColors.normalText, size: 24),
+              //     ),
+              //   ),
+              // ),
+              AppSpacing.sm.width,
               Obx(
                 () => GestureDetector(
                   onTap: controller.isScanning.value ? null : controller.rescan,

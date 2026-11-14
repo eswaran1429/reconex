@@ -1,3 +1,9 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:math';
+
+import 'package:flutter/services.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:network_tools/network_tools.dart';
 import 'package:path_provider/path_provider.dart';
@@ -23,9 +29,15 @@ class LanScanService {
     if (_configured) return;
     // Single-flight: concurrent callers await the same configure.
     _configuring ??= () async {
-      final dir = await getApplicationSupportDirectory();
-      await configureNetworkTools(dir.path, enableDebugging: false);
-      _configured = true;
+      try {
+        final dir = await getApplicationSupportDirectory();
+        await configureNetworkTools(dir.path, enableDebugging: false);
+        _configured = true;
+      } catch (_) {
+        // Let the next caller retry instead of rethrowing a cached failure forever.
+        _configuring = null;
+        rethrow;
+      }
     }();
     await _configuring;
   }
@@ -69,11 +81,11 @@ class LanScanService {
     }
   }
 
-  /// On-demand TCP port check for one device.
-  Future<List<int>> scanPorts(String ip) async {
+  /// On-demand TCP port check for one device. Defaults to [_commonPorts].
+  Future<List<int>> scanPorts(String ip, {List<int>? ports, Duration timeout = const Duration(seconds: 2)}) async {
     await _ensureConfigured();
     final open = <int>{};
-    final stream = PortScannerService.instance.customDiscover(ip, portList: _commonPorts);
+    final stream = PortScannerService.instance.customDiscover(ip, portList: ports ?? _commonPorts, timeout: timeout);
     await for (final host in stream) {
       for (final port in host.openPorts) {
         if (port.isOpen) open.add(port.port);
@@ -81,6 +93,117 @@ class LanScanService {
     }
     final sorted = open.toList()..sort();
     return sorted;
+  }
+
+  static const MethodChannel _multicast = MethodChannel('reconex/multicast');
+
+  /// Holds Android's Wi-Fi multicast lock while [body] runs, so mDNS replies
+  /// aren't filtered out. No-op where the channel doesn't exist.
+  /// Overlapping scans share the one native lock; it's released when the last ends.
+  Future<T> withMulticastLock<T>(Future<T> Function() body) async {
+    if (_lockHolders++ == 0) await _tryGet(() => _multicast.invokeMethod<void>('acquire'));
+    try {
+      return await body();
+    } finally {
+      if (--_lockHolders == 0) await _tryGet(() => _multicast.invokeMethod<void>('release'));
+    }
+  }
+
+  int _lockHolders = 0;
+
+  /// Sends an ONVIF WS-Discovery probe and collects replies for [window].
+  /// Map key is the replying IP; value is the advertised name, or null.
+  Future<Map<String, String?>> onvifProbe({Duration window = const Duration(seconds: 3)}) async {
+    final found = <String, String?>{};
+    final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+    try {
+      final probe = utf8.encode(_onvifProbeXml());
+      final target = InternetAddress('239.255.255.250');
+      // UDP can drop; send twice.
+      socket.send(probe, target, 3702);
+      socket.send(probe, target, 3702);
+      final sub = socket.listen((event) {
+        if (event != RawSocketEvent.read) return;
+        final dg = socket.receive();
+        if (dg == null) return;
+        final body = utf8.decode(dg.data, allowMalformed: true);
+        if (!body.contains('ProbeMatch')) return;
+        found[dg.address.address] = parseOnvifName(body);
+      });
+      await Future<void>.delayed(window);
+      await sub.cancel();
+    } finally {
+      socket.close();
+    }
+    return found;
+  }
+
+  /// IPs advertising each of [serviceTypes] over mDNS, mapped to the types seen.
+  Future<Map<String, Set<String>>> mdnsLookup(List<String> serviceTypes) async {
+    await _ensureConfigured();
+    final found = <String, Set<String>>{};
+    for (final type in serviceTypes) {
+      final hosts = await _tryGet(() => MdnsScannerService.instance.findingMdnsWithAddress(type)) ?? const [];
+      for (final host in hosts) {
+        found.putIfAbsent(host.address, () => <String>{}).add(type);
+      }
+    }
+    return found;
+  }
+
+  /// `Server` header, auth realm and page title from `http://ip:port/`, joined.
+  /// Null when nothing answers. Reads at most 8 KB of the body.
+  Future<String?> httpBanner(String ip, int port, {Duration timeout = const Duration(seconds: 3)}) async {
+    final client = HttpClient()..connectionTimeout = timeout;
+    try {
+      final req = await client.getUrl(Uri(scheme: 'http', host: ip, port: port, path: '/')).timeout(timeout);
+      final res = await req.close().timeout(timeout);
+      final parts = <String>[
+        ?res.headers.value(HttpHeaders.serverHeader),
+        ?res.headers.value(HttpHeaders.wwwAuthenticateHeader),
+      ];
+      final bytes = <int>[];
+      await for (final chunk in res.timeout(timeout)) {
+        bytes.addAll(chunk);
+        if (bytes.length >= 8192) break;
+      }
+      final title = parseHtmlTitle(utf8.decode(bytes, allowMalformed: true));
+      if (title != null) parts.add(title);
+      return parts.isEmpty ? null : parts.join(' · ');
+    } catch (_) {
+      return null;
+    } finally {
+      client.close(force: true);
+    }
+  }
+
+  static String _onvifProbeXml() {
+    final rnd = Random.secure();
+    String hex(int n) => List.generate(n, (_) => rnd.nextInt(16).toRadixString(16)).join();
+    final id = '${hex(8)}-${hex(4)}-4${hex(3)}-a${hex(3)}-${hex(12)}';
+    return '<?xml version="1.0" encoding="UTF-8"?>'
+        '<e:Envelope xmlns:e="http://www.w3.org/2003/05/soap-envelope" '
+        'xmlns:w="http://schemas.xmlsoap.org/ws/2004/08/addressing" '
+        'xmlns:d="http://schemas.xmlsoap.org/ws/2005/04/discovery" '
+        'xmlns:dn="http://www.onvif.org/ver10/network/wsdl">'
+        '<e:Header><w:MessageID>uuid:$id</w:MessageID>'
+        '<w:To e:mustUnderstand="true">urn:schemas-xmlsoap-org:ws:2005:04:discovery</w:To>'
+        '<w:Action e:mustUnderstand="true">http://schemas.xmlsoap.org/ws/2005/04/discovery/Probe</w:Action>'
+        '</e:Header><e:Body><d:Probe><d:Types>dn:NetworkVideoTransmitter</d:Types></d:Probe></e:Body></e:Envelope>';
+  }
+
+  /// Reads the `onvif://www.onvif.org/name/...` (or `/hardware/...`) scope from a ProbeMatch.
+  static String? parseOnvifName(String body) {
+    for (final key in ['name', 'hardware']) {
+      final m = RegExp('onvif://www\\.onvif\\.org/$key/([^\\s<]+)').firstMatch(body);
+      if (m != null) return Uri.decodeComponent(m.group(1)!);
+    }
+    return null;
+  }
+
+  static String? parseHtmlTitle(String html) {
+    final title = RegExp(r'<title[^>]*>([^<]*)</title>', caseSensitive: false).firstMatch(html)?.group(1)?.trim();
+    return (title == null || title.isEmpty) ? null : title;
   }
 
   static Future<T?> _tryGet<T>(Future<T?> Function() getter) async {

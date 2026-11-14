@@ -55,8 +55,7 @@ class DomainsTab extends GetView<DomainsController> {
               ),
             );
           }),
-          // Room for the floating navigation bar.
-          const SliverToBoxAdapter(child: SizedBox(height: 120)),
+          const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.xxl)),
         ],
       ),
     );
@@ -71,7 +70,7 @@ class _Header extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xl, AppSpacing.lg, AppSpacing.lg),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.xs, AppSpacing.lg, AppSpacing.lg),
       child: Row(
         children: [
           Expanded(
