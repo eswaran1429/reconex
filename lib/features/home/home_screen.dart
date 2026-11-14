@@ -126,7 +126,7 @@ class HomeScreen extends GetView<HomeController> {
                     ),
                   ),
                   AppSpacing.md.height,
-                  _RecentAlerts(alerts: alerts, onSeeAll: () => controller.open(AppRoutes.alerts)),
+                  // _RecentAlerts(alerts: alerts, onSeeAll: () => controller.open(AppRoutes.alerts)),
                 ],
               ),
             ),
